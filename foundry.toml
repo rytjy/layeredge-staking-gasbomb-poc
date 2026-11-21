@@ -1,0 +1,11 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.23"
+remappings = [
+  "@openzeppelin/contracts/=src/oz/contracts/",
+  "@openzeppelin/contracts-upgradeable/=src/oz/upgradeable/",
+  "@src/=src/",
+  "@interfaces/=src/interfaces/"
+]
