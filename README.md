@@ -55,3 +55,25 @@ far below a typical victim's staked principal.
 PoC harness, stubs and this README: MIT.
 Upstream contract files carry their own `SPDX-License-Identifier: MIT` headers
 and are included solely to reproduce the published contest finding.
+
+## 证明什么 / 不证明什么
+
+两条命令：一条必须绿，一条必须红。
+
+```bash
+forge test -vv --mt gasBomb    # 必须 PASS
+bash scripts/must_fail.sh      # 必须打印 MUTANT KILLED
+```
+
+**证明**
+
+- 第三方对该地址做 stake/unstake churn 时，`stakerTierHistory` 按约 2 条/轮增长，无上界。
+- `claimInterest` 的 gas 随历史长度线性增长，边际约 6.8k gas/条；外推到 4,396 条越过 30M，此后该用户的 claim/unstake/stake 全部 revert。
+- 反向对照：给 `push` 加 8 条上限后，同一组测试立刻失败（`history did not grow: 8 <= 290`）。说明这个 PoC 测的是「无上界」本身，不是任意 gas 增长。
+
+**不证明**
+
+- 不证明有人真的会发起这次攻击。成本约 220M gas（约 0.01–0.02 ETH）是估算，不是链上实测。
+- 不证明 30M 是所有链的上限。那是以太坊主网值，L2 与其它链不同。
+- 不证明其它入口（transfer、withdraw 等）同样受影响，本次只测 claim/unstake/stake。
+- 不证明严重级别。Medium / High 是评审的判断，PoC 只提供可复现事实。
